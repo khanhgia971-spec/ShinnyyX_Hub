@@ -1,5 +1,5 @@
 local sh={}
-sh.Version="5.0.0"
+sh.Version="6.0.0"
 sh.Name="ShinnyyX Hub✨"
 sh.Author="Em Khang"
 sh.BaseUrl="https://raw.githubusercontent.com/khanhgia971-spec/ShinnyyX_Hub/main/lib/"
@@ -57,7 +57,12 @@ for _,name in ipairs(moduleNames) do
     end
 end
 sh.Data={
-    AutoFarm={enabled=false,targetType="Quái",targetName="",radius=500,speed=1,useSkill=true,collectItems=true,autoQuest=false},
+    AutoFarm={
+        enabled=false,targetType="Quái",targetName="",radius=500,speed=1,
+        useSkill=true,collectItems=true,autoQuest=true,bossFarmEnabled=false,
+        autoHealEnabled=false,autoBuyEnabled=false,autoStatsEnabled=false,
+        healThreshold=30,autoCollectEnabled=true,autoSkillEnabled=true
+    },
     AutoQuest={enabled=false,npcName="",questType="Daily",autoTurnIn=true},
     Teleport={targetPosition=Vector3.new(0,0,0),targetPlayer="",islandName="Jungle"},
     ESP={enabled=false,showPlayers=true,showFruits=true,showItems=false,showBoss=true,showNPC=false,distance=1000,colorPlayer=Color3.fromRGB(0,255,0),colorFruit=Color3.fromRGB(255,255,0),colorItem=Color3.fromRGB(0,100,255),colorBoss=Color3.fromRGB(255,0,0),colorNPC=Color3.fromRGB(200,200,200)},
@@ -68,16 +73,16 @@ sh.Data={
     World={timeOfDay="Day",weather="Clear",fogEnabled=false,fogStart=0,fogEnd=1000,brightness=1,seaLevel=0,timeCycleSpeed=1,ambientColor=Color3.fromRGB(255,255,255),outdoorAmbient=Color3.fromRGB(127,127,127),colorCorrection=1,bloom=0},
     Settings={saveOnChange=true,autoUpdate=true,notifyOnLoad=true,defaultProfile="Default",antiAFK=true,autoSave=true,saveInterval=30,backupCount=5},
     Keybind={toggleFarm=Enum.KeyCode.F1,toggleFly=Enum.KeyCode.F2,toggleESP=Enum.KeyCode.F3,toggleGod=Enum.KeyCode.F4,teleportHome=Enum.KeyCode.F5,toggleCombat=Enum.KeyCode.F6,toggleNoclip=Enum.KeyCode.F7,toggleSpeedHack=Enum.KeyCode.F8},
-    Fishing={enabled=false,autoCast=true,autoReel=true,fishType="All"},
-    Raid={enabled=false,autoStart=true,autoComplete=true,raidDifficulty="Normal"},
-    SeaEvent={enabled=false,autoFind=true,autoFight=true,eventType="All"},
+    Fishing={enabled=false,autoCast=true,autoReel=true,fishType="All",autoMove=true},
+    Raid={enabled=false,autoStart=true,autoComplete=true,raidDifficulty="Normal",autoTeleport=true,autoFight=true,maxWaves=5,bossHealthThreshold=0.5},
+    SeaEvent={enabled=false,autoFind=true,autoFight=true,autoCollect=true,autoTeleport=true,searchRadius=2000},
     Stats={enabled=false,autoAssign=true,statPriority="Melee",stats={Melee=0,Defense=0,Sword=0,Gun=0,Fruit=0}},
-    Misc={autoSpin=false,dailyReward=false,giftCollect=false,autoBuy=false},
+    Misc={autoSpin=false,dailyReward=false,giftCollect=false,autoBuy=false,autoBuyItem="Beli",autoBuyAmount=1},
     MoonHop={enabled=false,targetType="Full Moon",maxHops=50,hopDelay=2,checkInterval=1},
     MysteryIsland={enabled=false},
-    VolcanoEvent={enabled=false,autoFind=true,autoStart=true,autoSealCracks=true,autoKillGolems=true,autoCollectBones=true,autoCollectEggs=true},
+    VolcanoEvent={enabled=false,autoFind=true,autoStart=true,autoSealCracks=true,autoKillGolems=true,autoCollectBones=true,autoCollectEggs=true,autoMove=true},
     Leviathan={enabled=false,autoBribe=true,autoFindFrozen=true,autoSail=true,autoSpawn=true,autoFight=true,autoCollectHeart=true,autoReset=true,cooldown=1800,requiredGroupSize=5,requiredSeaEvents=10},
-    Draco={enabled=false,autoCollectMaterials=true,autoUpgradeV2=true,autoUpgradeV3=true,autoUpgradeV4=true,autoLeviathan=true,autoOrb=true,autoTrial=true,autoPrimordialReign=true,autoDragonHeart=true,autoTransform=true,autoFillGauge=true,collectEggs=true,collectBones=true,collectScales=true,collectEmbers=true,autoUnlock=true}
+    Draco={enabled=false,autoCollectMaterials=true,autoUpgradeV2=true,autoUpgradeV3=true,autoUpgradeV4=true,autoLeviathan=true,autoOrb=true,autoTrial=true,autoPrimordialReign=true,autoDragonHeart=true,autoDragonStorm=true,autoTransform=true,autoFillGauge=true,collectEggs=true,collectBones=true,collectScales=true,collectEmbers=true,collectFireFlowers=true,autoUnlock=true}
 }
 local function initModules()
     for _,mod in pairs(Modules) do
