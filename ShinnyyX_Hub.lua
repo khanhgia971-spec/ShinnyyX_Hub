@@ -6,7 +6,6 @@ sh.BaseUrl="https://raw.githubusercontent.com/khanhgia971-spec/ShinnyyX_Hub/main
 local Players=game:GetService("Players")
 local RunService=game:GetService("RunService")
 local UserInputService=game:GetService("UserInputService")
-local VirtualUser=game:GetService("VirtualUser")
 local TweenService=game:GetService("TweenService")
 local HttpService=game:GetService("HttpService")
 local MarketplaceService=game:GetService("MarketplaceService")
@@ -29,6 +28,7 @@ local humanoid=character:FindFirstChild("Humanoid")
 local rootPart=character:FindFirstChild("HumanoidRootPart")
 if not humanoid then repeat wait() humanoid=character:FindFirstChild("Humanoid") until humanoid end
 if not rootPart then repeat wait() rootPart=character:FindFirstChild("HumanoidRootPart") until rootPart end
+
 local function loadModule(name)
     local url=sh.BaseUrl..name..".lua"
     local success,result=pcall(function()
@@ -41,6 +41,7 @@ local function loadModule(name)
         return nil
     end
 end
+
 local moduleNames={
     "GUI","Features","AutoFarm","AutoQuest","Teleport","ESP","Combat","Movement",
     "Items","Player","World","Settings","Utils","Animations","Notification","Keybind",
@@ -56,6 +57,7 @@ for _,name in ipairs(moduleNames) do
         error("[ShinnyX] Cannot load "..name..", stopping script!")
     end
 end
+
 sh.Data={
     AutoFarm={
         enabled=false,targetType="Quái",targetName="",radius=500,speed=1,
@@ -84,6 +86,7 @@ sh.Data={
     Leviathan={enabled=false,autoBribe=true,autoFindFrozen=true,autoSail=true,autoSpawn=true,autoFight=true,autoCollectHeart=true,autoReset=true,cooldown=1800,requiredGroupSize=5,requiredSeaEvents=10},
     Draco={enabled=false,autoCollectMaterials=true,autoUpgradeV2=true,autoUpgradeV3=true,autoUpgradeV4=true,autoLeviathan=true,autoOrb=true,autoTrial=true,autoPrimordialReign=true,autoDragonHeart=true,autoDragonStorm=true,autoTransform=true,autoFillGauge=true,collectEggs=true,collectBones=true,collectScales=true,collectEmbers=true,collectFireFlowers=true,autoUnlock=true}
 }
+
 local function initModules()
     for _,mod in pairs(Modules) do
         if mod and mod.Initialize then
@@ -94,8 +97,9 @@ local function initModules()
         pcall(function()Modules.GUI.Initialize(sh.Data, Modules)end)
     end
 end
+
 local function startBackgroundTasks()
-    task.spawn(function()
+    spawn(function()
         while true do
             wait(0.1)
             if sh.Data.AutoFarm.enabled and Modules.AutoFarm and Modules.AutoFarm.Run then
@@ -124,8 +128,12 @@ local function startBackgroundTasks()
             end
             if sh.Data.Settings.antiAFK then
                 pcall(function()
-                    VirtualUser:CaptureController()
-                    VirtualUser:ClickButton2(Vector2.new())
+                    if humanoid then
+                        local old = humanoid.WalkSpeed
+                        humanoid.WalkSpeed = old + 1
+                        wait(0.1)
+                        humanoid.WalkSpeed = old
+                    end
                 end)
             end
             if Modules.Settings and Modules.Settings.Save then
@@ -166,6 +174,7 @@ local function startBackgroundTasks()
         end
     end)
 end
+
 local function handleKeybinds()
     UserInputService.InputBegan:Connect(function(input,gameProcessed)
         if gameProcessed then return end
@@ -191,8 +200,9 @@ local function handleKeybinds()
         end
     end)
 end
+
 local function fallbackAll()
-    task.spawn(function()
+    spawn(function()
         while true do
             wait(0.5)
             if not Modules.ESP or not Modules.ESP.Update then
@@ -211,7 +221,7 @@ local function fallbackAll()
                                 label.TextColor3=Color3.fromRGB(0,255,0)
                                 label.TextScaled=true
                                 label.Parent=bill
-                                task.delay(0.1,function()bill:Destroy()end)
+                                spawn(function() wait(0.1) bill:Destroy() end)
                             end
                         end
                     end
@@ -315,12 +325,7 @@ local function fallbackAll()
                         wait(0.1)
                     end
                 end
-                if sh.Data.Combat.spamSkill then
-                    local key=sh.Data.Combat.skillKey:lower()
-                    UserInputService:SetKeyDown(Enum.KeyCode[key])
-                    wait(0.05)
-                    UserInputService:SetKeyUp(Enum.KeyCode[key])
-                end
+                -- spamSkill bị vô hiệu do delta không hỗ trợ SetKeyDown/Up
             end
             if not Modules.AutoQuest or not Modules.AutoQuest.Run then
                 if sh.Data.AutoQuest.enabled then
@@ -431,7 +436,7 @@ local function fallbackAll()
                         if phase==p then isMatch=true break end
                     end
                     if not isMatch then
-                        TeleportService:Teleport(game.PlaceId,player,{},game.JobId)
+                        warn("[ShinnyX] MoonHop không tìm thấy phase, không thể teleport trên Delta")
                     end
                 end
             end
@@ -503,55 +508,11 @@ local function fallbackAll()
                     end
                 end
             end
-            if not Modules.Leviathan or not Modules.Leviathan.Run then
-                if sh.Data.Leviathan.enabled then
-                    local levi=findLeviathan()
-                    if levi and levi:FindFirstChild("Humanoid") then
-                        local health=levi.Humanoid.Health
-                        if health>0 then
-                            rootPart.CFrame=CFrame.new(levi.Head.Position+Vector3.new(0,10,0))
-                            if humanoid then humanoid:BreakJoints() end
-                            wait(0.5)
-                        end
-                    else
-                        local spy=findSpy()
-                        if spy then
-                            rootPart.CFrame=CFrame.new(spy.Head.Position+Vector3.new(0,2,0))
-                            wait(0.3)
-                            if humanoid then humanoid:ChangeState(Enum.HumanoidStateType.Jumping) end
-                        end
-                        local frozen=findFrozenDimension()
-                        if frozen then
-                            rootPart.CFrame=CFrame.new(frozen.Position+Vector3.new(0,5,0))
-                            wait(0.5)
-                        end
-                    end
-                end
-            end
-            if not Modules.DracoRace or not Modules.DracoRace.Run then
-                if sh.Data.Draco.enabled then
-                    local wizard=findDragonWizard()
-                    if wizard then
-                        rootPart.CFrame=CFrame.new(wizard.Head.Position+Vector3.new(0,2,0))
-                        wait(0.3)
-                    end
-                    local eggs=findDragonEggs()
-                    for _,egg in ipairs(eggs) do
-                        rootPart.CFrame=CFrame.new(egg.Position+Vector3.new(0,2,0))
-                        wait(0.1)
-                        egg:Destroy()
-                    end
-                    local bones=findDinosaurBones()
-                    for _,bone in ipairs(bones) do
-                        rootPart.CFrame=CFrame.new(bone.Position+Vector3.new(0,2,0))
-                        wait(0.1)
-                        bone:Destroy()
-                    end
-                end
-            end
+            -- Leviathan và Draco bỏ qua vì fallback không có định nghĩa, modules sẽ xử lý
         end
     end)
 end
+
 local function main()
     initModules()
     startBackgroundTasks()
@@ -562,8 +523,9 @@ local function main()
     else
         print("ShinnyX Hub started")
     end
-    print("ShinnyX Hub v"..sh.Version.." by Em Khang - hoạt động!")
+    print("ShinnyX Hub v"..sh.Version.." by Em Khang - hoạt động trên Delta!")
 end
+
 player.OnTeleport:Connect(function(state)
     if Modules.Logger and Modules.Logger.Log then
         pcall(function()Modules.Logger.Log("Teleporting state: "..tostring(state))end)
@@ -571,5 +533,6 @@ player.OnTeleport:Connect(function(state)
         print("Teleport state: "..tostring(state))
     end
 end)
+
 pcall(main)
 return sh
